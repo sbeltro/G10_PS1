@@ -844,9 +844,38 @@ RMSE_5_3_2_KV <- modelo_5_3_2_KV[["results"]][["RMSE"]]
 
 #       * Estimar otros modelos ----
 #        ** Estimar modelo 4 ----
+modelo_5_4_KV <- train(L_Ingreso ~ edad + edad2 + educ,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+# Calcular ajuste del modelo
+RMSE_5_4_KV <- modelo_5_4_KV[["results"]][["RMSE"]]
+
 #        ** Estimar modelo 5 ----
+modelo_5_5_KV <- train(L_Ingreso ~ edad + edad2 + educ + mujer2 + educ_mujer2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Calcular ajuste del modelo
+RMSE_5_5_KV <- modelo_5_5_KV[["results"]][["RMSE"]]
 #        ** Estimar modelo 6 ----
+modelo_5_6_KV <- train(L_Ingreso ~ edad + edad2 + educ + cuentaPropia2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Calcular ajuste del modelo
+RMSE_5_6_KV <- modelo_5_6_KV[["results"]][["RMSE"]]
 #        ** Estimar modelo 7 ----
+modelo_5_7_KV <- train(L_Ingreso ~ edad + edad2 + educ + cuentaPropia2 + edad_cuentaPropia2 + 
+                         edad2_cuentaPropia2 + educ_cuentaPropia2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Calcular ajuste del modelo
+RMSE_5_7_KV <- modelo_5_6_KV[["results"]][["RMSE"]]
 #        ** Estimar modelo 8 ----
 #       * Comparar error de prediccion promedio de todos los modelos ----
 #    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
