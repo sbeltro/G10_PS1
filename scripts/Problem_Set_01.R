@@ -1,1 +1,39 @@
-# Problem Set #1
+################################################################################
+# Problem Set 1: Predicting Income
+# Autores: Natalia Capacho, Yurani Gonzalez, Sebastian Beltran
+# Big Data - MECA 
+################################################################################
+
+# Limpiar el espacio de trabajo ----
+# Instalar Paquetes y cargar librerias --------
+# 1. Adquirir los datos ----
+# 2. Limpiar y explorar los datos ----
+# 3. Perfil edad-ingresos ----
+# 4. La brecha de ingresos ----
+#    * Estimar modelo MCO de brecha de ingresos incondicional ----
+#    * Estimar modelo MCO de perfil edad-ingreso por genero ----
+#    * Salario igual para trabajos iguales ----
+#      a. Estimar modelos MCO de brecha de ingresos condicional----
+#      b. Usar FWL para hacer la estimacion ----
+# 5. Prediccion de ingresos ----
+#    a. Dividir la muestra en dos: entrenamiento(70%) y prueba(30%) y estimar modelos ----
+#       i.  Estimar modelo sin covariables solo constante ----
+#       ii. Estimar los modelos previos ----
+#       iii.Otros modelos ----
+#       iv. Comparar error de prediccion promedio de todos los modelos ----
+#       v.  Leverage ----
+#    b. Hacer validacion cruzada en K-iteraciones (K-fold Cross-Validation) ----
+#       * Estimar modelo sin covariables solo constante ----
+#       * Estimar Modelo de perfil edad-ingresos ----
+#       * Estimar modelo MCO de brecha de ingresos incondicional ----
+#       * Estimar modelo MCO de brecha de ingresos condicional ----
+#       * Estimar otros modelos ----
+#        ** Estimar modelo 4 ----
+#        ** Estimar modelo 5 ----
+#        ** Estimar modelo 6 ----
+#        ** Estimar modelo 7 ----
+#        ** Estimar modelo 8 ----
+#       * Comparar error de prediccion promedio de todos los modelos ----
+#    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
+#       i.  Escribir lopp ----
+#       ii. Comparar resultados ----
