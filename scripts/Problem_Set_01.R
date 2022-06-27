@@ -657,6 +657,85 @@ prueba$modelo_3_2_4<-predict(modelo_3_2_4,newdata = prueba)
 MSE_m3_2_4 <- with(prueba,mean((L_Ingreso-modelo_3_2_4)^2))
 
 #       iii.Otros modelos ----
+
+## Estimar modelo 4
+modelo_4 <- lm(L_Ingreso ~ edad + edad2 + educ, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_4<-predict(modelo_4,newdata = prueba)
+MSE_m4 <- with(prueba,mean((L_Ingreso-modelo_4)^2))
+
+## Estimar modelo 5
+modelo_5 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_5<-predict(modelo_5,newdata = prueba)
+MSE_m5 <- with(prueba,mean((L_Ingreso-modelo_5)^2))
+
+## Estimar modelo 6
+modelo_6 <- lm(L_Ingreso ~ edad + edad2 + educ + cuentaPropia, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_6<-predict(modelo_6,newdata = prueba)
+MSE_m6 <- with(prueba,mean((L_Ingreso-modelo_6)^2))
+
+## Estimar modelo 7
+modelo_7 <- lm(L_Ingreso ~ edad + edad2 + educ + cuentaPropia + cuentaPropia:edad + 
+                 cuentaPropia:edad2 + cuentaPropia:educ, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_7<-predict(modelo_7,newdata = prueba)
+MSE_m7 <- with(prueba,mean((L_Ingreso-modelo_7)^2))
+
+## Estimar modelo 8
+modelo_8 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                 cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                 oficio + Micro_empresa, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_8<-predict(modelo_8,newdata = prueba)
+MSE_m8 <- with(prueba,mean((L_Ingreso-modelo_8)^2))
+
+texreg::htmlreg(modelo_8, type="text", file='stores/modelo_8.doc')
+
+#       iv. Comparar error de prediccion promedio de todos los modelos ----------------------
+MSE_modelos <- data.frame(matrix(NA, 10, 2))
+colnames(MSE_modelos) <- c("Modelo", "MSE")
+
+MSE_modelos[1,1]="M.0"
+MSE_modelos[2,1]="M.1"
+MSE_modelos[3,1]="M.2"
+MSE_modelos[4,1]="M.3.1"
+MSE_modelos[5,1]="M.3.2"
+MSE_modelos[6,1]="M.4"
+MSE_modelos[7,1]="M.5"
+MSE_modelos[8,1]="M.6"
+MSE_modelos[9,1]="M.7"
+MSE_modelos[10,1]="M.8"
+
+MSE_modelos[1,2]=MSE_mref
+MSE_modelos[2,2]=MSE_m1_4
+MSE_modelos[3,2]=MSE_m2_4
+MSE_modelos[4,2]=MSE_m3_1_4
+MSE_modelos[5,2]=MSE_m3_2_4
+MSE_modelos[6,2]=MSE_m4
+MSE_modelos[7,2]=MSE_m5
+MSE_modelos[8,2]=MSE_m6
+MSE_modelos[9,2]=MSE_m7
+MSE_modelos[10,2]=MSE_m8
+
+write.xlsx(MSE_modelos, "views/MSE_modelos.xlsx")
+
+png("views/G7.png", width=450, height=291)
+MSE_m_grafico2 <- ggplot(MSE_modelos, aes(x = Modelo, y = MSE, group = 1)) +
+  geom_line(color="navyblue") +
+  geom_point() +
+  scale_y_continuous(limits = c(3,4))+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  labs(x = "Modelo", y = "MSE") +
+  theme_test()
+dev.off()
+
 #       iv. Comparar error de prediccion promedio de todos los modelos ----
 #       v.  Leverage ----
 #    b. Hacer validacion cruzada en K-iteraciones (K-fold Cross-Validation) ----
