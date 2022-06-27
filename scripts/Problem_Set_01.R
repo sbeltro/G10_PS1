@@ -736,11 +736,27 @@ MSE_m_grafico2 <- ggplot(MSE_modelos, aes(x = Modelo, y = MSE, group = 1)) +
   theme_test()
 dev.off()
 
-#       iv. Comparar error de prediccion promedio de todos los modelos ----
 #       v.  Leverage ----
+
 #    b. Hacer validacion cruzada en K-iteraciones (K-fold Cross-Validation) ----
 #       * Estimar modelo sin covariables solo constante ----
+modelo_5_KV_m <- train(Ingreso ~ .,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "null")
+
+# Ajuste del modelo
+RMSE_5_KV <- modelo_5_1_KV[["results"]][["RMSE"]]
+
 #       * Estimar Modelo de perfil edad-ingresos ----
+modelo_5_1_KV <- train(L_Ingreso ~ edad + edad2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Ajuste del modelo
+RMSE_5_1_KV <- modelo_5_1_KV[["results"]][["RMSE"]]
+
 #       * Estimar modelo MCO de brecha de ingresos incondicional ----
 #       * Estimar modelo MCO de brecha de ingresos condicional ----
 #       * Estimar otros modelos ----
