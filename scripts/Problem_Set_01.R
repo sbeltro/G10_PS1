@@ -339,9 +339,175 @@ grid.arrange(gra3, gra6, ncol = 2)
 dev.off()
 
 # 3. Perfil edad-ingresos ----
+# Estimar modelo Minimos Cuadrados Ordinario (MCO) de perfil edad-ingresos 
+modelo <- lm(Ingreso ~ edad + edad2, data = BASE_PS)
+texreg::htmlreg(modelo, file='modelo.doc')
+
+# Crear datos con los valores a graficar
+m1_datos_g1_e <- data.frame(m1_valores_predichos = predict(modelo),  
+                            edad = BASE_PS$edad)
+
+# Graficar edad e ingresos 
+png("views/G4.png", width=350, height=291)
+g1_e <- ggplot(m1_datos_g1_e, aes(x = edad, y = m1_valores_predichos)) +
+  geom_point(color="navyblue") +
+  geom_vline(xintercept = 47, linetype = 2, color = "4") + 
+  labs(x = "Edad (a?os)", y = "Ingreso estimado (COP)") +
+  theme_test() 
+dev.off()
+
+# Bootstrap 
+edad_fn<-function(data,index){
+  f<-lm(Ingreso ~ edad + edad2,data, subset = index)
+  coefs<-f$coefficients
+  b2<-coefs[2]
+  b3<-coefs[3]
+  edad <- -b2/(2*b3)
+  return(edad)
+}
+
+m1_resultado <- boot(data=BASE_PS, edad_fn, R=500)
+m1_resultado
+
+# Construir intervalo de confianza 
+Lim_inf1 <- 47.29889-(1.96*0.9538228)
+Lim_sup1 <- 47.29889+(1.96*0.9538228)
+
+Lim_inf1  
+Lim_sup1
+
+# Crear datos con los valores a graficar
+m_datos_g <- data.frame(m_valores_predichos = predict(modelo),  
+                        m_valores_observados = BASE_PS$Ingreso)
+
+# Graficar valores predichos del perfil edad-ingreso 
+g <- ggplot(m_datos_g, aes(x = m_valores_predichos, y = m_valores_observados)) +
+  geom_point(color="gray") +
+  geom_abline(intercept = 0, slope = 1, color = "navyblue") + 
+  scale_y_continuous(limits = c(0,50000000)) + 
+  #scale_x_continuous(limits = c(12,14.3)) + 
+  labs(x = "Ingreso estimado (COP)", y = "Ingreso observado (COP)") +
+  theme_test()
+
+# Crear logaritmo de ingreso 
+BASE_PS <- BASE_PS %>% 
+  mutate(L_Ingreso = ifelse(Ingreso==0, 
+                            yes = 0,
+                            no = log(Ingreso)))
+
+# Estimar modelo Minimos Cuadrados Ordinario (MCO) de perfil edad-ingresos 
+modelo_1 <- lm(L_Ingreso ~ edad + edad2, data = BASE_PS)
+
+# Calcular ajuste del modelo
+BASE_PS$ajuste_1<-predict(modelo_1)
+MSE_1 <- with(BASE_PS,mean((L_Ingreso-ajuste_1)^2))
+
+# Crear datos con los valores a graficar
+m1_datos_g1 <- data.frame(m1_valores(y_predichos = predict(modelo_1),  
+                                     m1_valores_observados = BASE_PS$L_Ingreso))
+
+# Graficar valores predichos del perfil edad-ingreso 
+g1 <- ggplot(m1_datos_g1, aes(x = m1_valores_predichos, y = m1_valores_observados)) +
+  geom_point(color="gray") +
+  geom_abline(intercept = 0, slope = 1, color = "navyblue") + 
+  scale_y_continuous(limits = c(5,20)) + scale_x_continuous(limits = c(12,14.3)) + 
+  labs(x = "Ingreso estimado (log)", y = "Ingreso observado (log)") +
+  theme_test()
+
+png("views/Anexo1.png", width=700, height=291)
+grid.arrange(g,g1, ncol=2)
+dev.off()
+
 # 4. La brecha de ingresos ----
 #    * Estimar modelo MCO de brecha de ingresos incondicional ----
+
+modelo_2 <- lm(L_Ingreso ~ mujer, data = BASE_PS)
+texreg::htmlreg(modelo_2, file='stores/modelo_2.doc')
+
+# Calcular ajuste del modelo
+BASE_PS$ajuste_2<-predict(modelo_2)
+MSE_2 <- with(BASE_PS,mean((L_Ingreso-ajuste_2)^2))
+
 #    * Estimar modelo MCO de perfil edad-ingreso por genero ----
+# Estimar modelos
+modelo_2_m <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==1))
+modelo_2_h <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==0))
+texreg::htmlreg(list(modelo_2_m, modelo_2_h), file='stores/modelo_2_m_h.doc')
+
+#Grafico edad-ingreso por genero
+
+# Crear datos con los valores a graficar
+m2_m_datos_g2 <- data.frame(m2_m_valores_predichos = predict(modelo_2_m),  
+                            edad = subset(BASE_PS, subset = mujer==1)$edad)
+m2_h_datos_g2 <- data.frame(m2_h_valores_predichos = predict(modelo_2_h),  
+                            edad = subset(BASE_PS, subset = mujer==0)$edad)
+
+# Graficar valores predichos del perfil edad-ingreso 
+g2 <- ggplot(m2_m_datos_g2, aes(x = edad, y = m2_m_valores_predichos)) +
+  geom_point(color="navyblue") +
+  geom_vline(xintercept = 43, linetype = 2, color = "4") + 
+  labs(x = "Edad (anos)", y = "Ingreso estimado (COP)", title = "Mujeres") +
+  theme_test() + theme(plot.title=element_text(hjust=0.5)) 
+
+g3 <- ggplot(m2_h_datos_g2, aes(x = edad, y = m2_h_valores_predichos)) +
+  geom_point(color="navyblue") +
+  geom_vline(xintercept = 50, linetype = 2, color = "4") +  
+  labs(x = "Edad (anos)", y = "Ingreso estimado (COP)", title = "Hombres") +
+  theme_test() + theme(plot.title=element_text(hjust=0.5))
+
+png("views/G6.png", width=700, height=291)
+grid.arrange(g2,g3, ncol = 2)
+dev.off()
+
+# Grafico ingreso estimado de los modelos
+
+# Crear datos con los valores a graficar
+m2_m_g2 <- data.frame(m2_valores_predichos = predict(modelo_2_m),  
+                      m2_valores_observados = subset(BASE_PS, subset = mujer==1)$Ingreso)
+m2_h_g2 <- data.frame(m2h_valores_predichos = predict(modelo_2_h),  
+                      m2h_valores_observados = subset(BASE_PS, subset = mujer==0)$Ingreso)
+
+# Graficar valores predichos del perfil edad-ingreso 
+g2m <- ggplot(m2_h_g2, aes(x = m2h_valores_predichos, y = m2h_valores_observados)) +
+  geom_point(color="gray") +
+  geom_abline(intercept = 0, slope = 1, color = "navyblue") + 
+  scale_y_continuous(limits = c(-1830000,50000000)) + 
+  labs(x = "Ingreso estimado (COP)", y = "Ingreso observado (COP)", title = "Mujeres") +
+  theme_test() + theme(plot.title=element_text(hjust=0.5))
+
+g2h <- ggplot(m2_m_g2, aes(x = m2_valores_predichos, y = m2_valores_observados)) +
+  geom_point(color="gray") +
+  geom_abline(intercept = 0, slope = 1, color = "navyblue") + 
+  scale_y_continuous(limits = c(-1830000,50000000)) + 
+  labs(x = "Ingreso estimado (COP)", y = "Ingreso observado (COP)", title = "Hombres") +
+  theme_test() + theme(plot.title=element_text(hjust=0.5))
+
+png("views/G5.png", width=700, height=291)
+grid.arrange(g2m, g2h, ncol = 2)
+dev.off()
+
+# Bootstrap
+
+# Mujeres
+m2_m_results <- boot(data = subset(BASE_PS, subset = mujer==1), edad_fn, R = 500)
+m2_m_results
+
+# Construir intervalo de confianza 
+Lim_inf2m <- 42.92666 - (1.96 * 0.8671444)
+Lim_sup2m <- 42.92666 + (1.96 * 0.8671444)
+Lim_inf2m  
+Lim_sup2m
+
+#Hombres
+m2_h_results <- boot(data = subset(BASE_PS, subset = mujer==0), edad_fn, R = 500)
+m2_h_results
+
+# Construir intervalo de confianza 
+Lim_inf2h <- 50.3818 - (1.96 * 1.911106)
+Lim_sup2h <- 50.3818 + (1.96 * 1.911106)
+Lim_inf2h  
+Lim_sup2h
+
 #    * Salario igual para trabajos iguales ----
 #      a. Estimar modelos MCO de brecha de ingresos condicional----
 #      b. Usar FWL para hacer la estimacion ----
@@ -367,3 +533,5 @@ dev.off()
 #    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
 #       i.  Escribir lopp ----
 #       ii. Comparar resultados ----
+
+
