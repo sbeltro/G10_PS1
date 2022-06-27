@@ -5,6 +5,7 @@
 ################################################################################
 
 # Limpiar el espacio de trabajo ----
+rm(list=ls())
 # Instalar Paquetes y cargar librerias --------
 # 1. Adquirir los datos ----
 # 2. Limpiar y explorar los datos ----
