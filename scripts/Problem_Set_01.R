@@ -26,6 +26,24 @@ p_load(rio,        # import/export data
        tableone,
        xlsx)
 # 1. Adquirir los datos ----
+Links = list()
+base =  list()
+for (i in 1:10){
+  Links[[i]] = paste0("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_",i, ".html")
+  base[[i]] = Links[[i]] %>% read_html() %>% html_table()
+  colnames(base[[i]][[1]])[1] = "n"
+  base[[i]] = base[[i]][[1]] %>% as_tibble()
+}
+
+GEIH = rbindlist(l=base , use.names=T , fill=T)
+
+# Reestructurar la forma de ver y construir la base de datos "GEIH" con Tibble
+vignette("tibble") 
+GEIH <- as_tibble(GEIH)
+
+# Inspeccionar la base de datos
+skim(GEIH)
+saveRDS(GEIH, "stores/GEIH.rds")
 # 2. Limpiar y explorar los datos ----
 # 3. Perfil edad-ingresos ----
 # 4. La brecha de ingresos ----
