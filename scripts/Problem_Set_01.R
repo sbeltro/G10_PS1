@@ -758,7 +758,34 @@ modelo_5_1_KV <- train(L_Ingreso ~ edad + edad2,
 RMSE_5_1_KV <- modelo_5_1_KV[["results"]][["RMSE"]]
 
 #       * Estimar modelo MCO de brecha de ingresos incondicional ----
-#       * Estimar modelo MCO de brecha de ingresos condicional ----
+# Con muestra completa
+modelo_5_2_KV <- train(L_Ingreso ~ mujer2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Ajuste del modelo
+RMSE_5_2_KV <- modelo_5_2_KV[["results"]][["RMSE"]]
+
+#       * Estimar modelo MCO de brecha de ingresos condicional ----.
+# Modelo 3.1
+modelo_5_3_1_KV <- train(L_Ingreso ~ mujer2 + cuentaPropia2 + formal2 + Micro_empresa2,
+                         data = BASE_PS,
+                         trControl = trainControl(method = "cv", number = 5), 
+                         method = "lm")
+
+# Ajuste del modelo
+RMSE_5_3_1_KV <- modelo_5_3_1_KV[["results"]][["RMSE"]]
+
+# Modelo 3.2
+modelo_5_3_2_KV <- train(L_Ingreso ~ mujer2 + cuentaPropia2 + formal2 + oficio + Micro_empresa2,
+                         data = BASE_PS,
+                         trControl = trainControl(method = "cv", number = 5), 
+                         method = "lm")
+
+# Ajuste del modelo
+RMSE_5_3_2_KV <- modelo_5_3_2_KV[["results"]][["RMSE"]]
+
 #       * Estimar otros modelos ----
 #        ** Estimar modelo 4 ----
 #        ** Estimar modelo 5 ----
