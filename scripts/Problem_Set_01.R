@@ -510,7 +510,99 @@ Lim_sup2h
 
 #    * Salario igual para trabajos iguales ----
 #      a. Estimar modelos MCO de brecha de ingresos condicional----
+modelo_3_1 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
+modelo_3_2 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + Micro_empresa + oficio, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% 
+  mutate(L_salario = ifelse(y_total_m==0, 
+                            yes = 0,
+                            no = log(y_total_m)))
+
+modelo_3_1s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
+modelo_3_2s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa + oficio, data = BASE_PS)
+
+texreg::htmlreg(list(modelo_3_1, modelo_3_2,modelo_3_1s, modelo_3_2s), file='stores/modelo_3_n.doc')
+
+# Calcular ajuste de los modelos
+BASE_PS$ajuste_3_1 <- predict(modelo_3_1)
+MSE_3_1 <- with(BASE_PS,mean((L_Ingreso-ajuste_3_1)^2))
+
+BASE_PS$ajuste_3_2 <- predict(modelo_3_2)
+MSE_3_2 <- with(BASE_PS,mean((L_Ingreso-ajuste_3_2)^2))
+
 #      b. Usar FWL para hacer la estimacion ----
+# Explorar datos atipicos
+quantile(x=BASE_PS$Ingreso ,na.rm = T)
+iqr = IQR(x=BASE_PS$Ingreso, na.rm=T)
+
+# Hacer estimacion usando el teorema de FWL
+BASE_PS = BASE_PS %>% 
+  mutate(Ingreso_out = ifelse(test = Ingreso > 4*iqr, 
+                              yes = 1, 
+                              no = 0))
+
+# Modelo 3_1
+modelo_3_1_Out <- lm(L_Ingreso ~ mujer + Ingreso_out + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% 
+  mutate(residuo_L_Ingreso=lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer=lm(mujer ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+  )
+
+modelo_3_1_FWL<-lm(residuo_L_Ingreso~residuo_mujer,data = BASE_PS)
+
+# Calcular ajuste del modelo
+BASE_PS$ajuste_3_1_FWL<-predict(modelo_3_1_FWL)
+MSE_3_1_FWL<- with(BASE_PS,mean((residuo_L_Ingreso-ajuste_3_1_FWL)^2))
+
+# Modelo 3_2
+modelo_3_2_Out <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + oficio + Micro_empresa + Ingreso_out, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% 
+  mutate(residuo_L_Ingreso2=lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer2=lm(mujer ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+  )
+
+modelo_3_2_FWL<-lm(residuo_L_Ingreso2~residuo_mujer2,data = BASE_PS)
+
+# Calcular ajuste del modelo
+BASE_PS$ajuste_3_2_FWL<-predict(modelo_3_2_FWL)
+MSE_3_2_FWL<- with(BASE_PS,mean((residuo_L_Ingreso-ajuste_3_2_FWL)^2))
+
+texreg::htmlreg(list(modelo_3_1_Out, modelo_3_1_FWL, modelo_3_2_Out, modelo_3_2_FWL), file='stores/modelo_3_FWL.doc')
+
+# Estimacion para salario 
+quantile(x=BASE_PS$y_total_m ,na.rm = T)
+iqr_s = IQR(x=BASE_PS$y_total_m, na.rm=T)
+
+# Hacer estimacion usando el teorema de FWL
+BASE_PS = BASE_PS %>% 
+  mutate(y_total_m_out = ifelse(test = y_total_m > 4*iqr_s, 
+                                yes = 1, 
+                                no = 0))
+
+# Modelo 3_1
+modelo_3_1_Out_S <- lm(L_salario ~ mujer + y_total_m_out + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% 
+  mutate(residuo_L_Salario=lm(L_salario ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer_S=lm(mujer ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+  )
+
+modelo_3_1_FWL_S<-lm(residuo_L_Salario~residuo_mujer_S,data = BASE_PS)
+
+# Modelo 3_2
+modelo_3_2_Out_S <- lm(L_salario ~ mujer + cuentaPropia + formal + oficio + Micro_empresa + y_total_m_out, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% 
+  mutate(residuo_L_Salario2=lm(L_salario ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer_S2=lm(mujer ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+  )
+
+modelo_3_2_FWL_S<-lm(residuo_L_Salario2~residuo_mujer_S2,data = BASE_PS)
+
+texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, modelo_3_2_FWL_S), file='stores/modelo_3_FWL_s.doc')
+
 # 5. Prediccion de ingresos ----
 #    a. Dividir la muestra en dos: entrenamiento(70%) y prueba(30%) y estimar modelos ----
 #       i.  Estimar modelo sin covariables solo constante ----
