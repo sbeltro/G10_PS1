@@ -605,8 +605,57 @@ texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, model
 
 # 5. Prediccion de ingresos ----
 #    a. Dividir la muestra en dos: entrenamiento(70%) y prueba(30%) y estimar modelos ----
+# Establecer semilla para reproducibilidad
+set.seed(10101)
+
+# Generar un indicador logico para dividir los conjuntos de datos
+BASE_PS <- BASE_PS %>%
+  mutate(holdout= as.logical(1:nrow(BASE_PS) %in%
+                               sample(nrow(BASE_PS), nrow(BASE_PS)*.3))
+  )
+
+prueba <- BASE_PS[BASE_PS$holdout==T,]
+entrenamiento <- BASE_PS[BASE_PS$holdout==F,]
+
 #       i.  Estimar modelo sin covariables solo constante ----
+modelo_referencia <- lm(L_Ingreso ~ 1, data = entrenamiento)
+coef(modelo_referencia)
+mean(entrenamiento$L_Ingreso)
+
+## Estimar modelo con la muestra 
+prueba$modelo_referencia <- predict(modelo_referencia,newdata = prueba)
+MSE_mref <- with(prueba,mean((L_Ingreso-modelo_referencia)^2))
+
 #       ii. Estimar los modelos previos ----
+## Estimar Modelo de perfil edad-ingresos 
+modelo_1_4 <- lm(L_Ingreso ~ edad + edad2 ,data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_1_4<-predict(modelo_1_4,newdata = prueba)
+MSE_m1_4 <- with(prueba,mean((L_Ingreso-modelo_1_4)^2))
+
+## Estimar modelo MCO de brecha de ingresos incondicional 
+modelo_2_4 <- lm(L_Ingreso ~ mujer ,data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_2_4<-predict(modelo_2_4,newdata = prueba)
+MSE_m2_4 <- with(prueba,mean((L_Ingreso-modelo_2_4)^2))
+
+## Estimar modelo MCO de brecha de ingresos condicional 1
+modelo_3_1_4 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + Micro_empresa, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_3_1_4<-predict(modelo_3_1_4,newdata = prueba)
+MSE_m3_1_4 <- with(prueba,mean((L_Ingreso-modelo_3_1_4)^2))
+
+
+## Estimar modelo MCO de brecha de ingresos condicional 2 
+modelo_3_2_4 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + oficio + Micro_empresa, data = entrenamiento)
+
+## Estimar modelo con la muestra 
+prueba$modelo_3_2_4<-predict(modelo_3_2_4,newdata = prueba)
+MSE_m3_2_4 <- with(prueba,mean((L_Ingreso-modelo_3_2_4)^2))
+
 #       iii.Otros modelos ----
 #       iv. Comparar error de prediccion promedio de todos los modelos ----
 #       v.  Leverage ----
