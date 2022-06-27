@@ -274,7 +274,7 @@ BASE_PS <- BASE_PS %>%
 TABLA <- BASE %>% 
   select(Ingreso, edad, mujer, educ, experiencia, cuentaPropia, formal, oficio,
          jefeHogar, Micro_empresa, estrato1, y_total_m, y_otrosTotal)
-stargazer(as.data.frame(TABLA), type = "text", out = "stores/TABLA1.txt", digits = 0)
+stargazer(as.data.frame(TABLA), type = "text", out = "views/TABLA1.txt", digits = 0)
 
 vars_tabla = c("Ingreso", "edad", "mujer", "educ", "experiencia", "cuentaPropia", "formal", "oficio",
                "jefeHogar", "Micro_empresa", "estrato1", "y_total_m", "y_otrosTotal")
@@ -341,7 +341,7 @@ dev.off()
 # 3. Perfil edad-ingresos ----
 # Estimar modelo Minimos Cuadrados Ordinario (MCO) de perfil edad-ingresos 
 modelo <- lm(Ingreso ~ edad + edad2, data = BASE_PS)
-texreg::htmlreg(modelo, file='stores/modelo.doc')
+texreg::htmlreg(modelo, file='views/modelo.doc')
 
 # Crear datos con los valores a graficar
 m1_datos_g1_e <- data.frame(m1_valores_predichos = predict(modelo),  
@@ -421,7 +421,7 @@ dev.off()
 #    * Estimar modelo MCO de brecha de ingresos incondicional ----
 
 modelo_2 <- lm(L_Ingreso ~ mujer, data = BASE_PS)
-texreg::htmlreg(modelo_2, file='stores/modelo_2.doc')
+texreg::htmlreg(modelo_2, file='views/modelo_2.doc')
 
 # Calcular ajuste del modelo
 BASE_PS$ajuste_2<-predict(modelo_2)
@@ -431,7 +431,7 @@ MSE_2 <- with(BASE_PS,mean((L_Ingreso-ajuste_2)^2))
 # Estimar modelos
 modelo_2_m <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==1))
 modelo_2_h <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==0))
-texreg::htmlreg(list(modelo_2_m, modelo_2_h), file='stores/modelo_2_m_h.doc')
+texreg::htmlreg(list(modelo_2_m, modelo_2_h), file='views/modelo_2_m_h.doc')
 
 #Grafico edad-ingreso por genero
 
@@ -520,7 +520,7 @@ BASE_PS <- BASE_PS %>%
 modelo_3_1s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
 modelo_3_2s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa + oficio, data = BASE_PS)
 
-texreg::htmlreg(list(modelo_3_1, modelo_3_2,modelo_3_1s, modelo_3_2s), file='stores/modelo_3_n.doc')
+texreg::htmlreg(list(modelo_3_1, modelo_3_2,modelo_3_1s, modelo_3_2s), file='views/modelo_3_n.doc')
 
 # Calcular ajuste de los modelos
 BASE_PS$ajuste_3_1 <- predict(modelo_3_1)
@@ -568,7 +568,7 @@ modelo_3_2_FWL<-lm(residuo_L_Ingreso2~residuo_mujer2,data = BASE_PS)
 BASE_PS$ajuste_3_2_FWL<-predict(modelo_3_2_FWL)
 MSE_3_2_FWL<- with(BASE_PS,mean((residuo_L_Ingreso-ajuste_3_2_FWL)^2))
 
-texreg::htmlreg(list(modelo_3_1_Out, modelo_3_1_FWL, modelo_3_2_Out, modelo_3_2_FWL), file='stores/modelo_3_FWL.doc')
+texreg::htmlreg(list(modelo_3_1_Out, modelo_3_1_FWL, modelo_3_2_Out, modelo_3_2_FWL), file='views/modelo_3_FWL.doc')
 
 # Estimacion para salario 
 quantile(x=BASE_PS$y_total_m ,na.rm = T)
@@ -600,7 +600,7 @@ BASE_PS <- BASE_PS %>%
 
 modelo_3_2_FWL_S<-lm(residuo_L_Salario2~residuo_mujer_S2,data = BASE_PS)
 
-texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, modelo_3_2_FWL_S), file='stores/modelo_3_FWL_s.doc')
+texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, modelo_3_2_FWL_S), file='views/modelo_3_FWL_s.doc')
 
 # 5. Prediccion de ingresos ----
 #    a. Dividir la muestra en dos: entrenamiento(70%) y prueba(30%) y estimar modelos ----
@@ -695,7 +695,7 @@ modelo_8 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaProp
 prueba$modelo_8<-predict(modelo_8,newdata = prueba)
 MSE_m8 <- with(prueba,mean((L_Ingreso-modelo_8)^2))
 
-texreg::htmlreg(modelo_8, type="text", file='stores/modelo_8.doc')
+texreg::htmlreg(modelo_8, type="text", file='views/modelo_8.doc')
 
 #       iv. Comparar error de prediccion promedio de todos los modelos ----------------------
 MSE_modelos <- data.frame(matrix(NA, 10, 2))
@@ -760,20 +760,29 @@ for (j in 1:nrow(prueba)) {
 } 
 
 # Agregar las variables estimado, Ing_estimado, Leverage, Residuales y Hj pertenecientes al modelo_8_out
-prueba<-prueba%>%mutate(estimado=predict(modelo_8_Out),Ing_Estimado=exp(estimado),Leverage
-                        =alphas,Residuales_8=residuales_mod8,Hj_8=Hj_mod8)
-# Ver un resumen de la lilsta de los alphas del modelo_8_out para determimnar cual es el valor del percentil 3 (el mas alto) 
+prueba <- prueba %>%
+          mutate(estimado = predict(modelo_8_Out),
+                 Ing_Estimado = exp(estimado),
+                 Leverage = alphas,
+                 Residuales_8 = modelo_8_Out$residuals,
+                 Hj_8 = Hj_mod8)
+
+# Ver un resumen de la lista de los alphas del modelo_8_out para determinar cual es el valor del percentil 3 (el mas alto) 
 summary(alphas)
 
 # Crea una base donde solo se tenga encuenta los ingresos y alphas más altos 
-prueba_ing<-subset(prueba,subset = alphas>1.77 & Ingreso_out==1)
+prueba_ing <- subset(prueba, subset = alphas > 1.77 & Ingreso_out == 1)
 
 # Crea una base donde este el ingreso original reportadado y los demás valores estimados del modelo_8_out para revisar los outliers
-tabla_lev<-prueba_ing%>%select(Ingreso,Ing_Estimado,Leverage,Residuales_8,Hj_8)
+tabla_lev <- prueba_ing %>% 
+             select(Ingreso, Ing_Estimado, Leverage, Residuales_8, Hj_8)
 view(tabla_lev)
 
 # Crea una gráfica para ver los outliers de los ingreso más altos vs el Leverage
+leverage <- data.frame(alphas, prueba$Ingreso_out) 
+
 png("views/G8.png", width = 466, length = 291)
+leverage <- data.frame(alphas, prueba$Ingreso_out) 
 gra_lev <- ggplot(leverage,aes(alphas,prueba$Ingreso_out))+
   geom_point(color="navyblue", size=1)+
   xlab("Alpha") + ylab("Outliers (ingreso)")+
@@ -809,7 +818,6 @@ modelo_5_1_KV <- train(L_Ingreso ~ edad + edad2,
 RMSE_5_1_KV <- modelo_5_1_KV[["results"]][["RMSE"]]
 
 #       * Estimar modelo MCO de brecha de ingresos incondicional ----
-# Con muestra completa
 modelo_5_2_KV <- train(L_Ingreso ~ mujer2,
                        data = BASE_PS,
                        trControl = trainControl(method = "cv", number = 5), 
