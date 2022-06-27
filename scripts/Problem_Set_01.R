@@ -765,13 +765,13 @@ prueba <- prueba %>%
                  Ing_Estimado = exp(estimado),
                  Leverage = alphas,
                  Residuales_8 = modelo_8_Out$residuals,
-                 Hj_8 = Hj_mod8)
+                 Hj_8 = lm.influence(modelo_8_Out)$hat)
 
 # Ver un resumen de la lista de los alphas del modelo_8_out para determinar cual es el valor del percentil 3 (el mas alto) 
 summary(alphas)
 
 # Crea una base donde solo se tenga encuenta los ingresos y alphas más altos 
-prueba_ing <- subset(prueba, subset = alphas > 1.77 & Ingreso_out == 1)
+prueba_ing <- subset(prueba, subset = alphas > 0.66 & Ingreso_out_p == 1)
 
 # Crea una base donde este el ingreso original reportadado y los demás valores estimados del modelo_8_out para revisar los outliers
 tabla_lev <- prueba_ing %>% 
@@ -779,10 +779,10 @@ tabla_lev <- prueba_ing %>%
 view(tabla_lev)
 
 # Crea una gráfica para ver los outliers de los ingreso más altos vs el Leverage
-leverage <- data.frame(alphas, prueba$Ingreso_out) 
+leverage <- data.frame(alphas, prueba$Ingreso_out_p) 
 
 png("views/G8.png", width = 466, length = 291)
-leverage <- data.frame(alphas, prueba$Ingreso_out) 
+leverage <- data.frame(alphas, prueba$Ingreso_out_p) 
 gra_lev <- ggplot(leverage,aes(alphas,prueba$Ingreso_out))+
   geom_point(color="navyblue", size=1)+
   xlab("Alpha") + ylab("Outliers (ingreso)")+
