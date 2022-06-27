@@ -737,6 +737,62 @@ MSE_m_grafico2 <- ggplot(MSE_modelos, aes(x = Modelo, y = MSE, group = 1)) +
 dev.off()
 
 #       v.  Leverage ----
+# Explorar datos atipicos
+quantile(x=prueba$Ingreso ,na.rm = T)
+iqr_p = IQR(x=prueba$Ingreso, na.rm=T)
+
+prueba = prueba %>% 
+  mutate(Ingreso_out_p = ifelse(test = Ingreso > 4*iqr_p, 
+                                yes = 1, 
+                                no = 0))
+
+modelo_8_Out <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                     cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                     oficio + Micro_empresa + Ingreso_out_p, data = prueba)
+
+#Crea una lista para guardar los alphas del modelo_8_out y corre un loop para guadar ese valor para cada observación
+alphas <- c() 
+
+for (j in 1:nrow(prueba)) { 
+  
+  uj <- modelo_8_Out$residual[j] 
+  
+  hj <- lm.influence(modelo_8_Out)$hat[j] 
+  
+  alpha <- uj/(1-hj) 
+  
+  alphas <- c(alphas, alpha) 
+  
+} 
+#Agregar las variables estimado, Ing_estimado, Leverage, Residuales y Hj pertenecientes al modelo_8_out
+prueba<-prueba%>%mutate(estimado=predict(modelo_8_Out),Ing_Estimado=exp(estimado),Leverage
+                        =alphas,Residuales_8=residuales_mod8,Hj_8=Hj_mod8)
+#Ver un resumen de la lilsta de los alphas del modelo_8_out para determimnar cual es el valor del percentil 3 (el mas alto) 
+summary(alphas)
+
+#Crea una base donde solo se tenga encuenta los ingresos y alphas más altos 
+prueba_ing<-subset(prueba,subset = alphas>1.77 & Ingreso_out==1)
+
+#Crea una base donde este el ingreso original reportadado y los demás valores estimados del modelo_8_out para revisar los outliers
+tabla_lev<-prueba_ing%>%select(Ingreso,Ing_Estimado,Leverage,Residuales_8,Hj_8)
+view(tabla_lev)
+
+#Crea una gráfica para ver los outliers de los ingreso más altos vs el Leverage
+png("views/G8.png", width = 466, length = 291)
+gra_lev <- ggplot(leverage,aes(alphas,prueba$Ingreso_out))+
+  geom_point(color="navyblue", size=1)+
+  xlab("Alpha") + ylab("Outliers (ingreso)")+
+  theme_test() 
+dev.off()
+
+prueba <- prueba %>% mutate(res_y_x=lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                                         cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                                         oficio + Micro_empresa, data = prueba)$residuals,
+                            res_e_x=lm(Ingreso_out_p ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                                         cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                                         oficio + Micro_empresa, data = prueba)$residuals)
+modelo_5_L <- lm(res_y_x ~ res_e_x, data = prueba)
+stargazer(modelo_8_Out, modelo_5_L,type="text")
 
 #    b. Hacer validacion cruzada en K-iteraciones (K-fold Cross-Validation) ----
 #       * Estimar modelo sin covariables solo constante ----
