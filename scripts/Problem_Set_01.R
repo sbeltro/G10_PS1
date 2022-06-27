@@ -7,6 +7,24 @@
 # Limpiar el espacio de trabajo ----
 rm(list=ls())
 # Instalar Paquetes y cargar librerias --------
+if(!require(pacman)) install.packages("pacman") ; require(pacman)
+
+p_load(rio,        # import/export data
+       tidyverse,  # tidy-data
+       skimr,      # summary data
+       caret,      # classification and regression training
+       rvest,      # read html
+       xml2,       # xml_child
+       data.table, # extension de data frame
+       stargazer,  # exportar datos 
+       ggplot2,    # graficas
+       boot,
+       devtools,
+       Rtools,
+       gridExtra,
+       dplyr,
+       tableone,
+       xlsx)
 # 1. Adquirir los datos ----
 # 2. Limpiar y explorar los datos ----
 # 3. Perfil edad-ingresos ----
