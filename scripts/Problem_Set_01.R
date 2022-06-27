@@ -341,7 +341,7 @@ dev.off()
 # 3. Perfil edad-ingresos ----
 # Estimar modelo Minimos Cuadrados Ordinario (MCO) de perfil edad-ingresos 
 modelo <- lm(Ingreso ~ edad + edad2, data = BASE_PS)
-texreg::htmlreg(modelo, file='views/modelo.doc')
+texreg::htmlreg(modelo, file = 'views/modelo.doc')
 
 # Crear datos con los valores a graficar
 m1_datos_g1_e <- data.frame(m1_valores_predichos = predict(modelo),  
@@ -350,7 +350,7 @@ m1_datos_g1_e <- data.frame(m1_valores_predichos = predict(modelo),
 # Graficar edad e ingresos 
 png("views/G4.png", width=350, height=291)
 g1_e <- ggplot(m1_datos_g1_e, aes(x = edad, y = m1_valores_predichos)) +
-  geom_point(color="navyblue") +
+  geom_point(color = "navyblue") +
   geom_vline(xintercept = 47, linetype = 2, color = "4") + 
   labs(x = "Edad (anos)", y = "Ingreso estimado (COP)") +
   theme_test() 
@@ -362,16 +362,16 @@ edad_fn<-function(data,index){
   coefs<-f$coefficients
   b2<-coefs[2]
   b3<-coefs[3]
-  edad <- -b2/(2*b3)
+  edad <- -b2 / (2 * b3)
   return(edad)
 }
 
-m1_resultado <- boot(data=BASE_PS, edad_fn, R=500)
+m1_resultado <- boot(data = BASE_PS, edad_fn, R = 500)
 m1_resultado
 
 # Construir intervalo de confianza 
-Lim_inf1 <- 47.29889-(1.96*0.9538228)
-Lim_sup1 <- 47.29889+(1.96*0.9538228)
+Lim_inf1 <- 47.29889 - (1.96 * 0.9538228)
+Lim_sup1 <- 47.29889 + (1.96 * 0.9538228)
 
 Lim_inf1  
 Lim_sup1
@@ -421,17 +421,17 @@ dev.off()
 #    * Estimar modelo MCO de brecha de ingresos incondicional ----
 
 modelo_2 <- lm(L_Ingreso ~ mujer, data = BASE_PS)
-texreg::htmlreg(modelo_2, file='views/modelo_2.doc')
+texreg::htmlreg(modelo_2, file = 'views/modelo_2.doc')
 
 # Calcular ajuste del modelo
 BASE_PS$ajuste_2<-predict(modelo_2)
-MSE_2 <- with(BASE_PS,mean((L_Ingreso-ajuste_2)^2))
+MSE_2 <- with(BASE_PS, mean((L_Ingreso - ajuste_2)^2))
 
 #    * Estimar modelo MCO de perfil edad-ingreso por genero ----
 # Estimar modelos
 modelo_2_m <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==1))
 modelo_2_h <- lm(Ingreso ~ edad + edad2, data = subset(BASE_PS, subset = mujer==0))
-texreg::htmlreg(list(modelo_2_m, modelo_2_h), file='views/modelo_2_m_h.doc')
+texreg::htmlreg(list(modelo_2_m, modelo_2_h), file = 'views/modelo_2_m_h.doc')
 
 #Grafico edad-ingreso por genero
 
@@ -454,7 +454,7 @@ g3 <- ggplot(m2_h_datos_g2, aes(x = edad, y = m2_h_valores_predichos)) +
   labs(x = "Edad (anos)", y = "Ingreso estimado (COP)", title = "Hombres") +
   theme_test() + theme(plot.title=element_text(hjust=0.5))
 
-png("views/G6.png", width=700, height=291)
+png("views/G6.png", width = 700, height = 291)
 grid.arrange(g2,g3, ncol = 2)
 dev.off()
 
@@ -481,7 +481,7 @@ g2h <- ggplot(m2_m_g2, aes(x = m2_valores_predichos, y = m2_valores_observados))
   labs(x = "Ingreso estimado (COP)", y = "Ingreso observado (COP)", title = "Hombres") +
   theme_test() + theme(plot.title=element_text(hjust=0.5))
 
-png("views/G5.png", width=700, height=291)
+png("views/G5.png", width = 700, height = 291)
 grid.arrange(g2m, g2h, ncol = 2)
 dev.off()
 
@@ -520,19 +520,19 @@ BASE_PS <- BASE_PS %>%
 modelo_3_1s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
 modelo_3_2s <- lm(L_salario ~ mujer + cuentaPropia + formal + Micro_empresa + oficio, data = BASE_PS)
 
-texreg::htmlreg(list(modelo_3_1, modelo_3_2,modelo_3_1s, modelo_3_2s), file='views/modelo_3_n.doc')
+texreg::htmlreg(list(modelo_3_1, modelo_3_2,modelo_3_1s, modelo_3_2s), file = 'views/modelo_3_n.doc')
 
 # Calcular ajuste de los modelos
 BASE_PS$ajuste_3_1 <- predict(modelo_3_1)
-MSE_3_1 <- with(BASE_PS,mean((L_Ingreso-ajuste_3_1)^2))
+MSE_3_1 <- with(BASE_PS,mean((L_Ingreso - ajuste_3_1)^2))
 
 BASE_PS$ajuste_3_2 <- predict(modelo_3_2)
-MSE_3_2 <- with(BASE_PS,mean((L_Ingreso-ajuste_3_2)^2))
+MSE_3_2 <- with(BASE_PS,mean((L_Ingreso - ajuste_3_2)^2))
 
 #      b. Usar FWL para hacer la estimacion ----
 # Explorar datos atipicos
 quantile(x=BASE_PS$Ingreso ,na.rm = T)
-iqr = IQR(x=BASE_PS$Ingreso, na.rm=T)
+iqr = IQR(x=BASE_PS$Ingreso, na.rm = T)
 
 # Hacer estimacion usando el teorema de FWL
 BASE_PS = BASE_PS %>% 
@@ -544,34 +544,34 @@ BASE_PS = BASE_PS %>%
 modelo_3_1_Out <- lm(L_Ingreso ~ mujer + Ingreso_out + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
 
 BASE_PS <- BASE_PS %>% 
-  mutate(residuo_L_Ingreso=lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
-         residuo_mujer=lm(mujer ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+  mutate(residuo_L_Ingreso = lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer = lm(mujer ~ Ingreso_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
   )
 
-modelo_3_1_FWL<-lm(residuo_L_Ingreso~residuo_mujer,data = BASE_PS)
+modelo_3_1_FWL<-lm(residuo_L_Ingreso~residuo_mujer, data = BASE_PS)
 
 # Calcular ajuste del modelo
-BASE_PS$ajuste_3_1_FWL<-predict(modelo_3_1_FWL)
-MSE_3_1_FWL<- with(BASE_PS,mean((residuo_L_Ingreso-ajuste_3_1_FWL)^2))
+BASE_PS$ajuste_3_1_FWL <- predict(modelo_3_1_FWL)
+MSE_3_1_FWL<- with(BASE_PS, mean((residuo_L_Ingreso - ajuste_3_1_FWL)^2))
 
 # Modelo 3_2
 modelo_3_2_Out <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + oficio + Micro_empresa + Ingreso_out, data = BASE_PS)
 
 BASE_PS <- BASE_PS %>% 
-  mutate(residuo_L_Ingreso2=lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
-         residuo_mujer2=lm(mujer ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+  mutate(residuo_L_Ingreso2 = lm(L_Ingreso ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer2 = lm(mujer ~ Ingreso_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
   )
 
-modelo_3_2_FWL<-lm(residuo_L_Ingreso2~residuo_mujer2,data = BASE_PS)
+modelo_3_2_FWL <- lm(residuo_L_Ingreso2~residuo_mujer2, data = BASE_PS)
 
 # Calcular ajuste del modelo
-BASE_PS$ajuste_3_2_FWL<-predict(modelo_3_2_FWL)
-MSE_3_2_FWL<- with(BASE_PS,mean((residuo_L_Ingreso-ajuste_3_2_FWL)^2))
+BASE_PS$ajuste_3_2_FWL <- predict(modelo_3_2_FWL)
+MSE_3_2_FWL <- with(BASE_PS,mean((residuo_L_Ingreso - ajuste_3_2_FWL)^2))
 
-texreg::htmlreg(list(modelo_3_1_Out, modelo_3_1_FWL, modelo_3_2_Out, modelo_3_2_FWL), file='views/modelo_3_FWL.doc')
+texreg::htmlreg(list(modelo_3_1_Out, modelo_3_1_FWL, modelo_3_2_Out, modelo_3_2_FWL), file = 'views/modelo_3_FWL.doc')
 
 # Estimacion para salario 
-quantile(x=BASE_PS$y_total_m ,na.rm = T)
+quantile(x=BASE_PS$y_total_m, na.rm = T)
 iqr_s = IQR(x=BASE_PS$y_total_m, na.rm=T)
 
 # Hacer estimacion usando el teorema de FWL
@@ -584,23 +584,23 @@ BASE_PS = BASE_PS %>%
 modelo_3_1_Out_S <- lm(L_salario ~ mujer + y_total_m_out + cuentaPropia + formal + Micro_empresa, data = BASE_PS)
 
 BASE_PS <- BASE_PS %>% 
-  mutate(residuo_L_Salario=lm(L_salario ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
-         residuo_mujer_S=lm(mujer ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+  mutate(residuo_L_Salario = lm(L_salario ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer_S = lm(mujer ~ y_total_m_out + cuentaPropia + formal + Micro_empresa,data = BASE_PS)$residuals,
   )
 
-modelo_3_1_FWL_S<-lm(residuo_L_Salario~residuo_mujer_S,data = BASE_PS)
+modelo_3_1_FWL_S <- lm(residuo_L_Salario~residuo_mujer_S,data = BASE_PS)
 
 # Modelo 3_2
 modelo_3_2_Out_S <- lm(L_salario ~ mujer + cuentaPropia + formal + oficio + Micro_empresa + y_total_m_out, data = BASE_PS)
 
 BASE_PS <- BASE_PS %>% 
-  mutate(residuo_L_Salario2=lm(L_salario ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
-         residuo_mujer_S2=lm(mujer ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+  mutate(residuo_L_Salario2 = lm(L_salario ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
+         residuo_mujer_S2 = lm(mujer ~ y_total_m_out + cuentaPropia + formal + oficio + Micro_empresa,data = BASE_PS)$residuals,
   )
 
-modelo_3_2_FWL_S<-lm(residuo_L_Salario2~residuo_mujer_S2,data = BASE_PS)
+modelo_3_2_FWL_S <- lm(residuo_L_Salario2~residuo_mujer_S2, data = BASE_PS)
 
-texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, modelo_3_2_FWL_S), file='views/modelo_3_FWL_s.doc')
+texreg::htmlreg(list(modelo_3_1_Out_S, modelo_3_1_FWL_S, modelo_3_2_Out_S, modelo_3_2_FWL_S), file = 'views/modelo_3_FWL_s.doc')
 
 # 5. Prediccion de ingresos ----
 #    a. Dividir la muestra en dos: entrenamiento(70%) y prueba(30%) y estimar modelos ----
@@ -623,37 +623,37 @@ mean(entrenamiento$L_Ingreso)
 
 ## Estimar modelo con la muestra 
 prueba$modelo_referencia <- predict(modelo_referencia,newdata = prueba)
-MSE_mref <- with(prueba,mean((L_Ingreso-modelo_referencia)^2))
+MSE_mref <- with(prueba, mean((L_Ingreso - modelo_referencia)^2))
 
 #       ii. Estimar los modelos previos ----
 ## Estimar Modelo de perfil edad-ingresos 
-modelo_1_4 <- lm(L_Ingreso ~ edad + edad2 ,data = entrenamiento)
+modelo_1_4 <- lm(L_Ingreso ~ edad + edad2, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_1_4<-predict(modelo_1_4,newdata = prueba)
-MSE_m1_4 <- with(prueba,mean((L_Ingreso-modelo_1_4)^2))
+prueba$modelo_1_4<-predict(modelo_1_4, newdata = prueba)
+MSE_m1_4 <- with(prueba,mean((L_Ingreso - modelo_1_4)^2))
 
 ## Estimar modelo MCO de brecha de ingresos incondicional 
-modelo_2_4 <- lm(L_Ingreso ~ mujer ,data = entrenamiento)
+modelo_2_4 <- lm(L_Ingreso ~ mujer, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_2_4<-predict(modelo_2_4,newdata = prueba)
-MSE_m2_4 <- with(prueba,mean((L_Ingreso-modelo_2_4)^2))
+prueba$modelo_2_4 <- predict(modelo_2_4, newdata = prueba)
+MSE_m2_4 <- with(prueba, mean((L_Ingreso - modelo_2_4)^2))
 
 ## Estimar modelo MCO de brecha de ingresos condicional 1
 modelo_3_1_4 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + Micro_empresa, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_3_1_4<-predict(modelo_3_1_4,newdata = prueba)
-MSE_m3_1_4 <- with(prueba,mean((L_Ingreso-modelo_3_1_4)^2))
+prueba$modelo_3_1_4 <- predict(modelo_3_1_4, newdata = prueba)
+MSE_m3_1_4 <- with(prueba,mean((L_Ingreso - modelo_3_1_4)^2))
 
 
 ## Estimar modelo MCO de brecha de ingresos condicional 2 
 modelo_3_2_4 <- lm(L_Ingreso ~ mujer + cuentaPropia + formal + oficio + Micro_empresa, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_3_2_4<-predict(modelo_3_2_4,newdata = prueba)
-MSE_m3_2_4 <- with(prueba,mean((L_Ingreso-modelo_3_2_4)^2))
+prueba$modelo_3_2_4 <- predict(modelo_3_2_4, newdata = prueba)
+MSE_m3_2_4 <- with(prueba,mean((L_Ingreso - modelo_3_2_4)^2))
 
 #       iii.Otros modelos ----
 
@@ -661,30 +661,30 @@ MSE_m3_2_4 <- with(prueba,mean((L_Ingreso-modelo_3_2_4)^2))
 modelo_4 <- lm(L_Ingreso ~ edad + edad2 + educ, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_4<-predict(modelo_4,newdata = prueba)
-MSE_m4 <- with(prueba,mean((L_Ingreso-modelo_4)^2))
+prueba$modelo_4 <- predict(modelo_4, newdata = prueba)
+MSE_m4 <- with(prueba,mean((L_Ingreso - modelo_4)^2))
 
 ## Estimar modelo 5
 modelo_5 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_5<-predict(modelo_5,newdata = prueba)
-MSE_m5 <- with(prueba,mean((L_Ingreso-modelo_5)^2))
+prueba$modelo_5 <- predict(modelo_5, newdata = prueba)
+MSE_m5 <- with(prueba,mean((L_Ingreso - modelo_5)^2))
 
 ## Estimar modelo 6
 modelo_6 <- lm(L_Ingreso ~ edad + edad2 + educ + cuentaPropia, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_6<-predict(modelo_6,newdata = prueba)
-MSE_m6 <- with(prueba,mean((L_Ingreso-modelo_6)^2))
+prueba$modelo_6 <- predict(modelo_6, newdata = prueba)
+MSE_m6 <- with(prueba,mean((L_Ingreso - modelo_6)^2))
 
 ## Estimar modelo 7
 modelo_7 <- lm(L_Ingreso ~ edad + edad2 + educ + cuentaPropia + cuentaPropia:edad + 
                  cuentaPropia:edad2 + cuentaPropia:educ, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_7<-predict(modelo_7,newdata = prueba)
-MSE_m7 <- with(prueba,mean((L_Ingreso-modelo_7)^2))
+prueba$modelo_7 <- predict(modelo_7, newdata = prueba)
+MSE_m7 <- with(prueba,mean((L_Ingreso - modelo_7)^2))
 
 ## Estimar modelo 8
 modelo_8 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
@@ -692,40 +692,40 @@ modelo_8 <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaProp
                  oficio + Micro_empresa, data = entrenamiento)
 
 ## Estimar modelo con la muestra 
-prueba$modelo_8<-predict(modelo_8,newdata = prueba)
-MSE_m8 <- with(prueba,mean((L_Ingreso-modelo_8)^2))
+prueba$modelo_8 <- predict(modelo_8, newdata = prueba)
+MSE_m8 <- with(prueba,mean((L_Ingreso - modelo_8)^2))
 
-texreg::htmlreg(modelo_8, type="text", file='views/modelo_8.doc')
+texreg::htmlreg(modelo_8, type="text", file = 'views/modelo_8.doc')
 
 #       iv. Comparar error de prediccion promedio de todos los modelos ----------------------
 MSE_modelos <- data.frame(matrix(NA, 10, 2))
 colnames(MSE_modelos) <- c("Modelo", "MSE")
 
-MSE_modelos[1,1]="M.0"
-MSE_modelos[2,1]="M.1"
-MSE_modelos[3,1]="M.2"
-MSE_modelos[4,1]="M.3.1"
-MSE_modelos[5,1]="M.3.2"
-MSE_modelos[6,1]="M.4"
-MSE_modelos[7,1]="M.5"
-MSE_modelos[8,1]="M.6"
-MSE_modelos[9,1]="M.7"
-MSE_modelos[10,1]="M.8"
+MSE_modelos[1,1] = "M.0"
+MSE_modelos[2,1] = "M.1"
+MSE_modelos[3,1] = "M.2"
+MSE_modelos[4,1] = "M.3.1"
+MSE_modelos[5,1] = "M.3.2"
+MSE_modelos[6,1] = "M.4"
+MSE_modelos[7,1] = "M.5"
+MSE_modelos[8,1] = "M.6"
+MSE_modelos[9,1] = "M.7"
+MSE_modelos[10,1] = "M.8"
 
-MSE_modelos[1,2]=MSE_mref
-MSE_modelos[2,2]=MSE_m1_4
-MSE_modelos[3,2]=MSE_m2_4
-MSE_modelos[4,2]=MSE_m3_1_4
-MSE_modelos[5,2]=MSE_m3_2_4
-MSE_modelos[6,2]=MSE_m4
-MSE_modelos[7,2]=MSE_m5
-MSE_modelos[8,2]=MSE_m6
-MSE_modelos[9,2]=MSE_m7
-MSE_modelos[10,2]=MSE_m8
+MSE_modelos[1,2] = MSE_mref
+MSE_modelos[2,2] = MSE_m1_4
+MSE_modelos[3,2] = MSE_m2_4
+MSE_modelos[4,2] = MSE_m3_1_4
+MSE_modelos[5,2] = MSE_m3_2_4
+MSE_modelos[6,2] = MSE_m4
+MSE_modelos[7,2] = MSE_m5
+MSE_modelos[8,2] = MSE_m6
+MSE_modelos[9,2] = MSE_m7
+MSE_modelos[10,2] = MSE_m8
 
 write.xlsx(MSE_modelos, "views/MSE_modelos.xlsx")
 
-png("views/G7.png", width=450, height=291)
+png("views/G7.png", width = 450, height = 291)
 MSE_m_grafico2 <- ggplot(MSE_modelos, aes(x = Modelo, y = MSE, group = 1)) +
   geom_line(color="navyblue") +
   geom_point() +
@@ -737,7 +737,7 @@ dev.off()
 
 #       v.  Leverage ----
 # Explorar datos atipicos
-quantile(x=prueba$Ingreso ,na.rm = T)
+quantile(x=prueba$Ingreso, na.rm = T)
 iqr_p = IQR(x=prueba$Ingreso, na.rm=T)
 
 prueba = prueba %>% 
@@ -755,7 +755,7 @@ alphas <- c()
 for (j in 1:nrow(prueba)) { 
   uj <- modelo_8_Out$residual[j] 
   hj <- lm.influence(modelo_8_Out)$hat[j] 
-  alpha <- uj/(1-hj) 
+  alpha <- uj / (1 - hj) 
   alphas <- c(alphas, alpha) 
 } 
 
@@ -896,24 +896,24 @@ RMSE_5_8_KV <- modelo_5_8_KV[["results"]][["RMSE"]]
 MSE_modelos_KV <- data.frame(matrix(NA, 9, 2))
 colnames(MSE_modelos_KV) <- c("Modelo", "Root_MSE")
 
-MSE_modelos_KV[1,1]="M.1(KV)"
-MSE_modelos_KV[2,1]="M.2(KV)"
-MSE_modelos_KV[3,1]="M.3.1(KV)"
-MSE_modelos_KV[4,1]="M.3.2(KV)"
-MSE_modelos_KV[5,1]="M.4(KV)"
-MSE_modelos_KV[6,1]="M.5(KV)"
-MSE_modelos_KV[7,1]="M.6(KV)"
-MSE_modelos_KV[8,1]="M.7(KV)"
-MSE_modelos_KV[9,1]="M.8(KV)"
+MSE_modelos_KV[1,1] = "M.1(KV)"
+MSE_modelos_KV[2,1] = "M.2(KV)"
+MSE_modelos_KV[3,1] = "M.3.1(KV)"
+MSE_modelos_KV[4,1] = "M.3.2(KV)"
+MSE_modelos_KV[5,1] = "M.4(KV)"
+MSE_modelos_KV[6,1] = "M.5(KV)"
+MSE_modelos_KV[7,1] = "M.6(KV)"
+MSE_modelos_KV[8,1] = "M.7(KV)"
+MSE_modelos_KV[9,1] = "M.8(KV)"
 
-MSE_modelos_KV[1,2]=RMSE_5_1_KV
-MSE_modelos_KV[2,2]=RMSE_5_2_KV
-MSE_modelos_KV[3,2]=RMSE_5_3_1_KV
-MSE_modelos_KV[4,2]=RMSE_5_3_2_KV
-MSE_modelos_KV[5,2]=RMSE_5_4_KV
-MSE_modelos_KV[6,2]=RMSE_5_5_KV
-MSE_modelos_KV[7,2]=RMSE_5_6_KV
-MSE_modelos_KV[8,2]=RMSE_5_7_KV
+MSE_modelos_KV[1,2] = RMSE_5_1_KV
+MSE_modelos_KV[2,2] = RMSE_5_2_KV
+MSE_modelos_KV[3,2] = RMSE_5_3_1_KV
+MSE_modelos_KV[4,2] = RMSE_5_3_2_KV
+MSE_modelos_KV[5,2] = RMSE_5_4_KV
+MSE_modelos_KV[6,2] = RMSE_5_5_KV
+MSE_modelos_KV[7,2] = RMSE_5_6_KV
+MSE_modelos_KV[8,2] = RMSE_5_7_KV
 MSE_modelos_KV[9,2]=RMSE_5_8_KV
 
 write.xlsx(MSE_modelos_KV, "views/MSE_modelos_KV.xlsx")
@@ -933,7 +933,6 @@ dev.off()
 
 #    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
 #       i.  Escribir lopp ----
-
 MSEs     <- list()
 for (i in 1:nrow(BASE_PS)) {
   MSEs[[i]]      <- (BASE_PS[i,]$L_Ingreso - predict(lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia +
@@ -941,6 +940,7 @@ for (i in 1:nrow(BASE_PS)) {
                                                           oficio + Micro_empresa, data = BASE_PS[-i,]), newdata = BASE_PS[i,]))^2
   LOOCV_estad    <- Reduce("+", MSEs)/length(MSEs)
 }
+
 LOOCV_estad
 
 #       ii. Comparar resultados ----
@@ -963,16 +963,15 @@ BASE_PS <- BASE_PS %>% mutate(res_y_xc=lm(L_Ingreso ~ edad + edad2 + educ + muje
                                             oficio + Micro_empresa, data = BASE_PS)$residuals)
 
 modelo_5_Lc <- lm(res_y_xc ~ res_e_xc, data = BASE_PS)
+stargazer(modelo_8_Outc, modelo_5_Lc, type = "text")
 
-stargazer(modelo_8_Outc, modelo_5_Lc,type="text")
+Uhat2 <- modelo_8_Outc$residuals 
+Hj2 <- lm.influence(modelo_8_Outc)$hat 
+alpha2 <- Uhat2 /(1 - Hj2) 
 
-Uhat2<-modelo_8_Outc$residuals 
-Hj2<-lm.influence(modelo_8_Outc)$hat 
-alpha2<-Uhat2/(1-Hj2) 
+modelo_8_Outc$coefficients[10] > LOOCV_estad
 
-modelo_8_Outc$coefficients[10]>LOOCV_estad
-
-mean(Hj2)<(2*12)/16397
+mean(Hj2) < (2 * 12) / 16397
 
 
 
