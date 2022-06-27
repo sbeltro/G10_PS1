@@ -341,7 +341,7 @@ dev.off()
 # 3. Perfil edad-ingresos ----
 # Estimar modelo Minimos Cuadrados Ordinario (MCO) de perfil edad-ingresos 
 modelo <- lm(Ingreso ~ edad + edad2, data = BASE_PS)
-texreg::htmlreg(modelo, file='modelo.doc')
+texreg::htmlreg(modelo, file='stores/modelo.doc')
 
 # Crear datos con los valores a graficar
 m1_datos_g1_e <- data.frame(m1_valores_predichos = predict(modelo),  
@@ -352,7 +352,7 @@ png("views/G4.png", width=350, height=291)
 g1_e <- ggplot(m1_datos_g1_e, aes(x = edad, y = m1_valores_predichos)) +
   geom_point(color="navyblue") +
   geom_vline(xintercept = 47, linetype = 2, color = "4") + 
-  labs(x = "Edad (a?os)", y = "Ingreso estimado (COP)") +
+  labs(x = "Edad (anos)", y = "Ingreso estimado (COP)") +
   theme_test() 
 dev.off()
 
@@ -385,7 +385,6 @@ g <- ggplot(m_datos_g, aes(x = m_valores_predichos, y = m_valores_observados)) +
   geom_point(color="gray") +
   geom_abline(intercept = 0, slope = 1, color = "navyblue") + 
   scale_y_continuous(limits = c(0,50000000)) + 
-  #scale_x_continuous(limits = c(12,14.3)) + 
   labs(x = "Ingreso estimado (COP)", y = "Ingreso observado (COP)") +
   theme_test()
 
@@ -403,8 +402,8 @@ BASE_PS$ajuste_1<-predict(modelo_1)
 MSE_1 <- with(BASE_PS,mean((L_Ingreso-ajuste_1)^2))
 
 # Crear datos con los valores a graficar
-m1_datos_g1 <- data.frame(m1_valores(y_predichos = predict(modelo_1),  
-                                     m1_valores_observados = BASE_PS$L_Ingreso))
+m1_datos_g1 <- data.frame(m1_valores_predichos = predict(modelo_1),  
+                                     m1_valores_observados = BASE_PS$L_Ingreso)
 
 # Graficar valores predichos del perfil edad-ingreso 
 g1 <- ggplot(m1_datos_g1, aes(x = m1_valores_predichos, y = m1_valores_observados)) +
@@ -754,30 +753,26 @@ modelo_8_Out <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuenta
 alphas <- c() 
 
 for (j in 1:nrow(prueba)) { 
-  
   uj <- modelo_8_Out$residual[j] 
-  
   hj <- lm.influence(modelo_8_Out)$hat[j] 
-  
   alpha <- uj/(1-hj) 
-  
   alphas <- c(alphas, alpha) 
-  
 } 
-#Agregar las variables estimado, Ing_estimado, Leverage, Residuales y Hj pertenecientes al modelo_8_out
+
+# Agregar las variables estimado, Ing_estimado, Leverage, Residuales y Hj pertenecientes al modelo_8_out
 prueba<-prueba%>%mutate(estimado=predict(modelo_8_Out),Ing_Estimado=exp(estimado),Leverage
                         =alphas,Residuales_8=residuales_mod8,Hj_8=Hj_mod8)
-#Ver un resumen de la lilsta de los alphas del modelo_8_out para determimnar cual es el valor del percentil 3 (el mas alto) 
+# Ver un resumen de la lilsta de los alphas del modelo_8_out para determimnar cual es el valor del percentil 3 (el mas alto) 
 summary(alphas)
 
-#Crea una base donde solo se tenga encuenta los ingresos y alphas más altos 
+# Crea una base donde solo se tenga encuenta los ingresos y alphas más altos 
 prueba_ing<-subset(prueba,subset = alphas>1.77 & Ingreso_out==1)
 
-#Crea una base donde este el ingreso original reportadado y los demás valores estimados del modelo_8_out para revisar los outliers
+# Crea una base donde este el ingreso original reportadado y los demás valores estimados del modelo_8_out para revisar los outliers
 tabla_lev<-prueba_ing%>%select(Ingreso,Ing_Estimado,Leverage,Residuales_8,Hj_8)
 view(tabla_lev)
 
-#Crea una gráfica para ver los outliers de los ingreso más altos vs el Leverage
+# Crea una gráfica para ver los outliers de los ingreso más altos vs el Leverage
 png("views/G8.png", width = 466, length = 291)
 gra_lev <- ggplot(leverage,aes(alphas,prueba$Ingreso_out))+
   geom_point(color="navyblue", size=1)+
@@ -969,7 +964,7 @@ alpha2<-Uhat2/(1-Hj2)
 
 modelo_8_Outc$coefficients[10]>LOOCV_estad
 
-mean(alpha2)<(2*12)/16397
+mean(Hj2)<(2*12)/16397
 
 
 
