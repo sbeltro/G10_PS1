@@ -941,5 +941,35 @@ for (i in 1:nrow(BASE_PS)) {
 LOOCV_estad
 
 #       ii. Comparar resultados ----
+iqr_c = IQR(x=BASE_PS$Ingreso, na.rm=T)
+
+BASE_PS = BASE_PS %>% 
+  mutate(Ingreso_out_c = ifelse(test = Ingreso > 4*iqr_c, 
+                                yes = 1, 
+                                no = 0))
+
+modelo_8_Outc <- lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                      cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                      oficio + Micro_empresa + Ingreso_out_c, data = BASE_PS)
+
+BASE_PS <- BASE_PS %>% mutate(res_y_xc=lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                                            cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                                            oficio + Micro_empresa, data = BASE_PS)$residuals,
+                              res_e_xc=lm(Ingreso_out_c ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia + 
+                                            cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal + 
+                                            oficio + Micro_empresa, data = BASE_PS)$residuals)
+
+modelo_5_Lc <- lm(res_y_xc ~ res_e_xc, data = BASE_PS)
+
+stargazer(modelo_8_Outc, modelo_5_Lc,type="text")
+
+Uhat2<-modelo_8_Outc$residuals 
+Hj2<-lm.influence(modelo_8_Outc)$hat 
+alpha2<-Uhat2/(1-Hj2) 
+
+modelo_8_Outc$coefficients[10]>LOOCV_estad
+
+mean(alpha2)<(2*12)/16397
+
 
 
