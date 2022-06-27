@@ -930,6 +930,16 @@ dev.off()
 
 #    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
 #       i.  Escribir lopp ----
+
+MSEs     <- list()
+for (i in 1:nrow(BASE_PS)) {
+  MSEs[[i]]      <- (BASE_PS[i,]$L_Ingreso - predict(lm(L_Ingreso ~ edad + edad2 + educ + mujer + educ:mujer + cuentaPropia +
+                                                          cuentaPropia:edad + cuentaPropia:edad2 + cuentaPropia:educ + formal +
+                                                          oficio + Micro_empresa, data = BASE_PS[-i,]), newdata = BASE_PS[i,]))^2
+  LOOCV_estad    <- Reduce("+", MSEs)/length(MSEs)
+}
+LOOCV_estad
+
 #       ii. Comparar resultados ----
 
 
