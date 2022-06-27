@@ -877,7 +877,57 @@ modelo_5_7_KV <- train(L_Ingreso ~ edad + edad2 + educ + cuentaPropia2 + edad_cu
 # Calcular ajuste del modelo
 RMSE_5_7_KV <- modelo_5_6_KV[["results"]][["RMSE"]]
 #        ** Estimar modelo 8 ----
+
+modelo_5_8_KV <- train(L_Ingreso ~ edad + edad2 + educ + mujer2 + educ_mujer2 + cuentaPropia2 + 
+                         edad_cuentaPropia2 + edad2_cuentaPropia2 + cuentaPropia2 + formal2 + 
+                         oficio + Micro_empresa2,
+                       data = BASE_PS,
+                       trControl = trainControl(method = "cv", number = 5), 
+                       method = "lm")
+
+# Calcular ajuste del modelo
+RMSE_5_8_KV <- modelo_5_8_KV[["results"]][["RMSE"]]
+
 #       * Comparar error de prediccion promedio de todos los modelos ----
+
+MSE_modelos_KV <- data.frame(matrix(NA, 9, 2))
+colnames(MSE_modelos_KV) <- c("Modelo", "Root_MSE")
+
+MSE_modelos_KV[1,1]="M.1(KV)"
+MSE_modelos_KV[2,1]="M.2(KV)"
+MSE_modelos_KV[3,1]="M.3.1(KV)"
+MSE_modelos_KV[4,1]="M.3.2(KV)"
+MSE_modelos_KV[5,1]="M.4(KV)"
+MSE_modelos_KV[6,1]="M.5(KV)"
+MSE_modelos_KV[7,1]="M.6(KV)"
+MSE_modelos_KV[8,1]="M.7(KV)"
+MSE_modelos_KV[9,1]="M.8(KV)"
+
+MSE_modelos_KV[1,2]=RMSE_5_1_KV
+MSE_modelos_KV[2,2]=RMSE_5_2_KV
+MSE_modelos_KV[3,2]=RMSE_5_3_1_KV
+MSE_modelos_KV[4,2]=RMSE_5_3_2_KV
+MSE_modelos_KV[5,2]=RMSE_5_4_KV
+MSE_modelos_KV[6,2]=RMSE_5_5_KV
+MSE_modelos_KV[7,2]=RMSE_5_6_KV
+MSE_modelos_KV[8,2]=RMSE_5_7_KV
+MSE_modelos_KV[9,2]=RMSE_5_8_KV
+
+write.xlsx(MSE_modelos_KV, "views/MSE_modelos_KV.xlsx")
+
+p <- ggplot(MSE_modelos_KV, aes(x = Modelo, y = Root_MSE, group = 1)) +
+  geom_line(color = "navyblue") +
+  geom_point() +
+  scale_y_continuous(limits = c(1.8,2.05))+
+  labs(x = "Modelo", y = "RMSE") +
+  theme_test()
+p2 <- p + theme(axis.text = element_text(angle = 90)) 
+p3 <- MSE_m_grafico2 + theme(axis.text = element_text(angle = 90))
+
+png("views/G9.png", width = 430, height = 300)
+grid.arrange(p3, p2, ncol = 2)
+dev.off()
+
 #    c. Hacer validacion cruzada dejando uno afuera (Leave-One-Out Cross-validation [LOOCV]) ----
 #       i.  Escribir lopp ----
 #       ii. Comparar resultados ----
