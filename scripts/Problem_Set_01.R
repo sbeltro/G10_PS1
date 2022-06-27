@@ -823,7 +823,7 @@ modelo_5_2_KV <- train(L_Ingreso ~ mujer2,
 # Ajuste del modelo
 RMSE_5_2_KV <- modelo_5_2_KV[["results"]][["RMSE"]]
 
-#       * Estimar modelo MCO de brecha de ingresos condicional ----.
+#       * Estimar modelo MCO de brecha de ingresos condicional ----
 # Modelo 3.1
 modelo_5_3_1_KV <- train(L_Ingreso ~ mujer2 + cuentaPropia2 + formal2 + Micro_empresa2,
                          data = BASE_PS,
