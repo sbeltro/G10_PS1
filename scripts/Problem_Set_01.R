@@ -24,7 +24,7 @@ p_load(rio,        # import/export data
        gridExtra,
        dplyr,
        tableone,
-       xlsx)
+       writexl)
 # 1. Adquirir los datos ----
 Links = list()
 base =  list()
@@ -723,7 +723,7 @@ MSE_modelos[8,2] = MSE_m6
 MSE_modelos[9,2] = MSE_m7
 MSE_modelos[10,2] = MSE_m8
 
-write.xlsx(MSE_modelos, "views/MSE_modelos.xlsx")
+write_xlsx(MSE_modelos, "views/MSE_modelos.xlsx")
 
 png("views/G7.png", width = 450, height = 291)
 MSE_m_grafico2 <- ggplot(MSE_modelos, aes(x = Modelo, y = MSE, group = 1)) +
@@ -916,7 +916,7 @@ MSE_modelos_KV[7,2] = RMSE_5_6_KV
 MSE_modelos_KV[8,2] = RMSE_5_7_KV
 MSE_modelos_KV[9,2]=RMSE_5_8_KV
 
-write.xlsx(MSE_modelos_KV, "views/MSE_modelos_KV.xlsx")
+write_xlsx(MSE_modelos_KV, "views/MSE_modelos_KV.xlsx")
 
 p <- ggplot(MSE_modelos_KV, aes(x = Modelo, y = Root_MSE, group = 1)) +
   geom_line(color = "navyblue") +
